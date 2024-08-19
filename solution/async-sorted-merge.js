@@ -4,8 +4,8 @@ const bluebird = require("bluebird");
 
 const { addLog } = require('./utils');
 
-const processPromises = function (sources) {
-    
+const processPromises = function (sources, logs) {
+
     const promises = sources.map(function(eachSource) {
         return eachSource.popAsync();
     });
@@ -15,16 +15,21 @@ const processPromises = function (sources) {
     .then(results => ({ results, reducedSources: sources }))
     .then(({ results, reducedSources }) => {
         
-        const logs = bluebird.reduce(results, (acc, curr) => {
+        const newLogs = bluebird.reduce(results, (acc, curr) => {
             
             if (acc.length === 0) {
-                return [curr];
+                acc.push(curr);
+                return acc;
             }
-            
-            return addLog(acc, curr, acc.length - 1);
-        }, []);
 
-        return logs;
+            return addLog(acc, curr, acc.length - 1);
+        }, logs);
+
+        if (results.length > 0) {
+            return processPromises(reducedSources, newLogs);
+        }
+
+        return newLogs;
     });
 };
 
@@ -32,7 +37,7 @@ module.exports = (logSources, printer) => {
     
     return new Promise(async (resolve) => {
         
-        processPromises(logSources)
+        processPromises(logSources, [])
         .then(logs => {
             // The Printer can't be called on every iteration because logs can be resorted at any moment
             // Calling just to check the sorting
