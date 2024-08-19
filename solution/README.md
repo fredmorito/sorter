@@ -7,6 +7,8 @@
 - Fix the printer implementation.
 - Enhance the solution to support higher numbers of sources/logs.
 - Modularize other parts of the solution to make the code more readable.
+- Testing.
+- Improve for a better hardware resource usage.
 
 ### Caveats
 - The `printer` object serves only for validation purposes.
