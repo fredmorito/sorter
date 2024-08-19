@@ -1,6 +1,5 @@
 "use strict";
 
-
 const addLog = function (array, newLog, indexToCompareAgainst) {
 
     if (Boolean(array[indexToCompareAgainst]) === false) {
@@ -16,7 +15,6 @@ const addLog = function (array, newLog, indexToCompareAgainst) {
     }
 
     return addLog(array, newLog, (indexToCompareAgainst - 1));
-
 };
 
 module.exports = (logSources, printer) => {
