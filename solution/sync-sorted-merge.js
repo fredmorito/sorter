@@ -1,14 +1,27 @@
 "use strict";
 
-// Print all entries, across all of the sources, in chronological order.
 
-const sorter = function (a, b) {
-    return a.date > b.date ? 1 : -1;
+const addLog = function (array, newLog, indexToCompareAgainst) {
+
+    if (Boolean(array[indexToCompareAgainst]) === false) {
+        array.unshift(newLog);
+
+        return array;
+    }
+
+    if (newLog.date > array[indexToCompareAgainst].date) {
+        array.splice((indexToCompareAgainst + 1), 0, newLog);
+
+        return array;
+    }
+
+    return addLog(array, newLog, (indexToCompareAgainst - 1));
+
 };
 
 module.exports = (logSources, printer) => {
 
-    const logs = [];
+    let logs = [];
 
     while (logSources.length > 0) {
 
@@ -17,36 +30,27 @@ module.exports = (logSources, printer) => {
             const currentSource = logSources[sourceIndex];
             const sourceLog = currentSource.pop();
 
-            if (sourceLog === false) {
+            if (logs.length === 0) {
+                logs = [sourceLog];
+                break;
+            }
+
+            if (sourceLog === false) { // No need to check anymore
                 logSources.splice(sourceIndex, 1);
                 break;
             }
 
-            logs.push(sourceLog);
+            logs = addLog(logs, sourceLog, logs.length - 1);
         }
     }
 
-    // Just make it work.
-    logs.sort(sorter);
-
-    console.table(logs);
-
+    // The Printer can't be called on every iteration because logs can be resorted at any moment
+    // Calling just to check the sorting
     for (let counter = 0; counter < logs.length; counter++) {
-        const element = logs[counter];
-        printer.print(element);
+        printer.print(logs[counter]);
     }
 
     printer.done();
-
-    /*
-
-    ***********************************
-    Logs printed:		 23879
-    Time taken (s):		 0.36
-    Logs/s:			 66330.55555555556
-    ***********************************
-
-    */
 
     return console.log("Sync sort complete.");
 };
